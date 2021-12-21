@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Http3 测试</string>
+    <string name="main_progress_name">进度</string>
+    <string name="main_progress_task_total">总任务数:</string>
+    <string name="main_progress_task_executed">已执行任务数:</string>
+    <string name="upload_label">上传</string>
+
+    <dimen name="nav_space">20dp</dimen>
+    <dimen name="top_space">20dp</dimen>
+    <dimen name="left_space">20dp</dimen>
+    <dimen name="right_space">20dp</dimen>
+    <dimen name="bottom_space">20dp</dimen>
+    <dimen name="inner_space">8dp</dimen>
+    <dimen name="font_size_big">20dp</dimen>
+    <dimen name="font_size">18dp</dimen>
+    <dimen name="font_size_small">14dp</dimen>
+</resources>
