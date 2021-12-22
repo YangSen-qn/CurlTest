@@ -26,6 +26,19 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     public static final int StatusUploadLog = 13;
     public static final int StatusUploadingLog = 14;
 
+    private static final String defaultAlert = DefaultAlert();
+    private static String DefaultAlert() {
+        String alert = "操作步骤：\n";
+        alert += "1. 【输入上传标识】上传标识为上传进度缓存的 id ；在点击 [开始任务] 时程序会根据此 id 加载缓存的上传进度；在上传过程中不允许修改此 id 。\n";
+        alert += "2. 【等待上传任务结束】此过程耗时较长；进度中会展示任务的状态；上传过程中会缓存状态，因此上传过程中可以暂停任务。\n";
+        alert += "3. 【上传日志】当按钮变为 [上传日志] 则表明上传结束，可进行日志上传；点击后按钮显示 [日志上传中...] ，此过程不可取消。\n";
+        alert += "4. 【任务完成】当按钮重新变为 [开始任务] 则表示任务已经完成。\n";
+        alert += "\n";
+        alert += "注：\n";
+        alert += "   在任务的任何状态均可杀死 App, 下次打开 App 在输入上传标识并点击[上传]按钮后，会根据之前的君度继续进行。\n\n";
+        return alert;
+    }
+
     private EditText jobIdET;
     private ProgressBar currentTaskProgressPB;
     private Button uploadBtn;
@@ -45,11 +58,12 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         setContentView(R.layout.activity_main);
 
         jobIdET = findViewById(R.id.main_upload_id);
-        jobIdET.setHint("上传标识会作为进度缓存的标识，上传过程中不可编辑。");
+        jobIdET.setHint("上传标识会为上传任务进度缓存的 id");
         currentTaskProgressPB = findViewById(R.id.main_current_task_progress);
         currentTaskProgressPB.setMax(100);
         taskInfoTV = findViewById(R.id.main_progress_info);
         taskInfoTV.setMovementMethod(ScrollingMovementMethod.getInstance());
+        taskInfoTV.setText(defaultAlert);
         taskCountTV = findViewById(R.id.main_progress_task_count);
         taskExecutedCountTV = findViewById(R.id.main_progress_task_executed);
 
@@ -70,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         }
 
         if (job == null || !job.getJobName().equals(jobName)) {
-            taskInfoTV.setText("");
+            taskInfoTV.setText(defaultAlert);
             job = new UploadJob(jobName, this, this);
         }
 
@@ -92,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
                         job.clearJobCacheIfNeeded();
                         updateStatus();
                         job = null;
+                        log(false, "日志上传成功 \n");
+                        log(false, "😁😁😁 恭喜您上传成功 😁😁😁\n");
                     } else {
                         status = StatusUploadLog;
                     }
