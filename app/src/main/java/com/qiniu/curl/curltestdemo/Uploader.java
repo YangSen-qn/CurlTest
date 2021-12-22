@@ -14,6 +14,10 @@ import java.nio.charset.StandardCharsets;
 
 public class Uploader {
 
+    public static void uploadFile(String file, String key, Complete complete) {
+        uploadFile(file, key, false, null, complete);
+    }
+
     public static void uploadFile(String file, String key, boolean useHttp3, UpCancellationSignal cancellationSignal, Complete complete) {
         Configuration cfg = new Configuration.Builder()
                 .putThreshold(1024 * 1024 * 4)
@@ -28,7 +32,7 @@ public class Uploader {
         manager.put(file, key, Tools.getToken(), new UpCompletionHandler() {
             @Override
             public void complete(String key, ResponseInfo info, JSONObject response) {
-                if (info != null && info.isOK()) {
+                if (info != null && (info.isOK() || info.statusCode == 614)) {
                     complete.complete(true, null);
                 } else {
                     complete.complete(false, info != null ? info.error : null);
@@ -37,7 +41,7 @@ public class Uploader {
         }, options);
     }
 
-    public static void uploadLog(String log, String key, Complete complete) {
+    public static void uploadData(String log, String key, Complete complete) {
         Configuration cfg = new Configuration.Builder()
                 .putThreshold(1024 * 1024 * 4)
                 .resumeUploadVersion(Configuration.RESUME_UPLOAD_VERSION_V2)
@@ -50,7 +54,7 @@ public class Uploader {
         manager.put(log.getBytes(StandardCharsets.UTF_8), key, Tools.getToken(), new UpCompletionHandler() {
             @Override
             public void complete(String key, ResponseInfo info, JSONObject response) {
-                if (info != null && info.isOK()) {
+                if (info != null && (info.isOK() || info.statusCode == 614)) {
                     complete.complete(true, null);
                 } else {
                     complete.complete(false, info != null ? info.error : null);
@@ -59,7 +63,7 @@ public class Uploader {
         }, null);
     }
 
-    private interface Complete {
+    public interface Complete {
         void complete(boolean isSuccess, String error);
     }
 }

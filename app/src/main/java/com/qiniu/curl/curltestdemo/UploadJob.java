@@ -12,34 +12,37 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class UploadJob {
     private static final String JobCacheName = "UploadJob.json";
 
     private Logger logger;
-    private String debugFile;
     private BufferedWriter debugWriter;
     private String jobName;
     private UpCancellationSignal cancellationSignal;
 
+    private long createTimestamp;
+    private boolean isInfoUploaded;
+    private boolean isDebugFileUploaded;
+    private String debugFile;
     private boolean isCompleted = false;
     private UploadTaskGroup currentTaskGroup;
     private List<UploadTaskGroup> taskGroups = new ArrayList<>();
 
     public UploadJob(String jobName, Logger loggerParam, UpCancellationSignal cancellationSignal) {
+        this.createTimestamp = new Date().getTime();
         this.jobName = jobName;
         this.debugFile = Tools.tmpDir() + "/" + jobName + "_debug.log";
-        try {
-            this.debugWriter = new BufferedWriter(new FileWriter(this.debugFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         this.logger = new Logger() {
             @Override
             public void log(String info) {
-                appendDebugInfo(info);
-                loggerParam.log(info);
+                if (info != null && info.length() > 0) {
+                    info += "\n";
+                    appendDebugInfo(info);
+                    loggerParam.log(info);
+                }
             }
         };
         this.cancellationSignal = cancellationSignal;
@@ -61,17 +64,8 @@ public class UploadJob {
         }
     }
 
-    public void releaseResource() {
-        if (debugWriter != null) {
-            try {
-                debugWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public void prepare() {
+        createDebugWriter();
         setCompleted(false);
         for (UploadTaskGroup group : taskGroups) {
             group.prepare();
@@ -92,6 +86,7 @@ public class UploadJob {
                     group.run();
                     saveTasksToLocal();
                 }
+                releaseDebugWriter();
                 setCompleted(true);
             }
         }).start();
@@ -115,12 +110,34 @@ public class UploadJob {
         return count;
     }
 
+    public String getJobName() {
+        return jobName;
+    }
+
+    public String getDebugFilePath() {
+        return debugFile;
+    }
+
     public synchronized boolean isCompleted() {
         return isCompleted;
     }
 
     private synchronized void setCompleted(boolean completed) {
         isCompleted = completed;
+    }
+
+    public void setInfoUploaded(boolean infoUploaded) {
+        isInfoUploaded = infoUploaded;
+        saveTasksToLocal();
+    }
+
+    public void setDebugFileUploaded(boolean debugFileUploaded) {
+        isDebugFileUploaded = debugFileUploaded;
+        saveTasksToLocal();
+    }
+
+    public long getCreateTimestamp() {
+        return createTimestamp;
     }
 
     public String reportInfo() {
@@ -137,10 +154,14 @@ public class UploadJob {
     }
 
     // -------- 数据缓存 -----------
+    private String getCacheName() {
+        return jobName + "_" + JobCacheName;
+    }
     private String loadTasksFromLocal() {
-        byte[] data = Cache.getCacheData(JobCacheName);
+        String cacheName = getCacheName();
+        byte[] data = Cache.getCacheData(cacheName);
         if (data == null) {
-            return "warning: not find cache data for key:" + JobCacheName;
+            return "warning: not find cache data for key:" + cacheName;
         }
 
         UploadJob job = null;
@@ -155,6 +176,7 @@ public class UploadJob {
         if (job == null) {
             return "parse cache data error";
         }
+        this.createTimestamp = job.createTimestamp;
         this.taskGroups = job.taskGroups;
         return null;
     }
@@ -170,7 +192,7 @@ public class UploadJob {
             return "job to json data error";
         }
 
-        return Cache.cacheData(JobCacheName, jsonData);
+        return Cache.cacheData(getCacheName(), jsonData);
     }
 
     public void clearJobCacheIfNeeded() {
@@ -179,8 +201,30 @@ public class UploadJob {
     }
 
     private void removeTasksInfoFromLocalIfNeeded() {
-        if (executedTaskCount() == taskCount()) {
-            Cache.removeCache(JobCacheName);
+        if (executedTaskCount() != taskCount()) {
+            return;
+        }
+        Cache.removeCache(getCacheName());
+    }
+
+    private void createDebugWriter() {
+        if (debugWriter != null) {
+            return;
+        }
+        try {
+            this.debugWriter = new BufferedWriter(new FileWriter(this.debugFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void releaseDebugWriter() {
+        if (debugWriter != null) {
+            try {
+                debugWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -190,6 +234,7 @@ public class UploadJob {
         }
         try {
             debugWriter.write(info);
+            debugWriter.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -213,6 +258,9 @@ public class UploadJob {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.putOpt("job_name", jobName);
+            jsonObject.putOpt("is_info_uploaded", isInfoUploaded);
+            jsonObject.putOpt("is_debug_file_uploaded", isDebugFileUploaded);
+            jsonObject.putOpt("create_timestamp", createTimestamp);
             JSONArray taskJsonArray = new JSONArray();
             for (UploadTaskGroup taskGroup : taskGroups) {
                 JSONObject taskJson = taskGroup.toJsonData();
@@ -232,6 +280,9 @@ public class UploadJob {
         UploadJob job = new UploadJob();
         try {
             job.jobName = jsonObject.getString("job_name");
+            job.isInfoUploaded = jsonObject.getBoolean("is_info_uploaded");
+            job.isDebugFileUploaded = jsonObject.getBoolean("is_debug_file_uploaded");
+            job.createTimestamp = jsonObject.getLong("create_timestamp");
             job.taskGroups = new ArrayList<>();
             JSONArray taskJsonArray = jsonObject.getJSONArray("task_groups");
             for (int i = 0; i < taskJsonArray.length(); i++) {

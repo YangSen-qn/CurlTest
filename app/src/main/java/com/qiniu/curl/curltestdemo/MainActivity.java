@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             return;
         }
 
-        if (job == null) {
+        if (job == null || !job.getJobName().equals(jobName)) {
+            taskInfoTV.setText("");
             job = new UploadJob(jobName, this, this);
         }
 
@@ -83,13 +84,16 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         } else if (status == StatusUploadLog) {
             status = StatusUploadingLog;
             updateStatus();
-            LogReporter.reportUploadJobInfo(job, new LogReporter.Complete() {
+            LogReporter.reportUploadJob(job, new LogReporter.Complete() {
                 @Override
                 public void complete(boolean isSuccess) {
                     if (isSuccess) {
+                        status = StatusWaiting;
                         job.clearJobCacheIfNeeded();
-                        job.releaseResource();
+                        updateStatus();
                         job = null;
+                    } else {
+                        status = StatusUploadLog;
                     }
                 }
             });
@@ -99,13 +103,38 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     @SuppressLint("SetTextI18n")
     private void updateStatus() {
         UploadJob job = this.job;
+
+        int taskCount = 0;
+        int executedTaskCount = 0;
+        int currentTaskProgress = 0;
+        if (job != null) {
+            taskCount = job.taskCount();
+            executedTaskCount = job.executedTaskCount();
+            UploadTaskGroup currentTask = job.currentTask();
+            if (currentTask != null) {
+                currentTaskProgress = (int)(currentTask.progress() * 100);
+            }
+        }
+
+        taskCountTV.setText("" + taskCount);
+        taskExecutedCountTV.setText("" + executedTaskCount);
+        currentTaskProgressPB.setProgress(currentTaskProgress);
+        synchronized (this) {
+            if (logInfo.length() > 0) {
+                taskInfoTV.append(logInfo);
+                logInfo = "";
+            }
+        }
+
         if (job == null) {
             return;
         }
 
         if (job.isCompleted()) {
             if (job.taskCount() == job.executedTaskCount()) {
-                status = StatusUploadLog;
+                if (status == StatusUploading) {
+                    status = StatusUploadLog;
+                }
             } else {
                 status = StatusWaiting;
                 stopRefreshTimer();
@@ -125,28 +154,12 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         } else if (status == StatusUploadingLog) {
             uploadBtn.setText("日志上传中...");
         }
-
-        taskCountTV.setText("" + job.taskCount());
-        taskExecutedCountTV.setText("" + job.executedTaskCount());
-        UploadTaskGroup currentTask = job.currentTask();
-        if (currentTask != null) {
-            currentTaskProgressPB.setProgress((int)(currentTask.progress() * 100));
-        } else {
-            currentTaskProgressPB.setProgress(0);
-        }
-
-        synchronized (this) {
-            if (logInfo.length() > 0) {
-                taskInfoTV.append(logInfo);
-                logInfo = "";
-            }
-        }
     }
 
     @Override
     public void log(String info) {
         synchronized (this) {
-            logInfo += info + "\n";
+            logInfo += info ;
         }
     }
 
@@ -188,11 +201,5 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             return;
         }
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-
-    // 上传日志
-    private void uploadLog() {
-
     }
 }

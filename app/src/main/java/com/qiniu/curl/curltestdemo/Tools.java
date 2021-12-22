@@ -13,7 +13,7 @@ import java.util.logging.FileHandler;
 public class Tools {
 
     public static String getToken() {
-        return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:Ri2cJLraA9qvMYP14cwwONi3x9E=:eyJzY29wZSI6ImtvZG8tcGhvbmUtem9uZTAtc3BhY2UiLCJkZWFkbGluZSI6MTY0NTI2NTIxMSwgInJldHVybkJvZHkiOiJ7XCJjYWxsYmFja1VybFwiOlwiaHR0cDpcL1wvY2FsbGJhY2suZGV2LnFpbml1LmlvXCIsIFwiZm9vXCI6JCh4OmZvbyksIFwiYmFyXCI6JCh4OmJhciksIFwibWltZVR5cGVcIjokKG1pbWVUeXBlKSwgXCJoYXNoXCI6JChldGFnKSwgXCJrZXlcIjokKGtleSksIFwiZm5hbWVcIjokKGZuYW1lKX0ifQ==";
+        return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:Lg3QQz1QnODk-PxSfnE8xpR27lM=:eyJzY29wZSI6Imh0dHAzLXRlc3QiLCJkZWFkbGluZSI6MTY1MDUyMjg5NH0=";
     }
 
     // 单位：kb
