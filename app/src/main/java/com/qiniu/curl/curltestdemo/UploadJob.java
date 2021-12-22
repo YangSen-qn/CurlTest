@@ -76,7 +76,7 @@ public class UploadJob {
     public void run() {
         prepare();
 
-        logger.log(false,"\n job:" + jobName + " start");
+        logger.log(false,"\n job:" + jobName + " start\n");
         new Thread(new Runnable() {
             @Override
             public void run() {
