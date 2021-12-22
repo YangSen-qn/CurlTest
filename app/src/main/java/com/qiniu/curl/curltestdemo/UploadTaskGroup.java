@@ -44,6 +44,16 @@ public class UploadTaskGroup {
         }
     }
 
+    public double progress() {
+        int completedCount = 0;
+        for (UploadTask task : tasks) {
+            if (task.isComplete()) {
+                completedCount += 1;
+            }
+        }
+        return (double)completedCount / fileCount;
+    }
+
     public boolean isCompleted() {
         boolean completed = true;
         for (UploadTask task : tasks) {
@@ -72,6 +82,10 @@ public class UploadTaskGroup {
     }
 
     public void run() {
+        if (isCompleted()) {
+            return;
+        }
+
         synchronized (this) {
             if (isRunning) {
                 return;
@@ -139,6 +153,30 @@ public class UploadTaskGroup {
         desc += "FileCount:" +  fileCount + " ";
         desc += "SuccessCount:" +  successCount() + " ";
         return desc;
+    }
+
+    public String reportInfo() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.putOpt("task_name", taskName);
+            jsonObject.putOpt("request_type", requestType);
+            jsonObject.putOpt("file_count", fileCount);
+            jsonObject.putOpt("file_size", fileSize);
+            jsonObject.putOpt("concurrent_count", concurrentCount);
+            long duration = 0;
+            long successCount = 0;
+            for (UploadTask task : tasks) {
+                if (task.isComplete() && task.isSuccess()) {
+                    duration += task.getDuration();
+                    successCount += 1;
+                }
+            }
+            jsonObject.putOpt("success_count", successCount);
+            jsonObject.putOpt("average_duration", duration / successCount);
+        } catch (JSONException e) {
+            jsonObject = new JSONObject();
+        }
+        return jsonObject.toString();
     }
 
     //----------- json ------------

@@ -100,6 +100,10 @@ public class UploadTask implements Runnable {
         return status() == StatusWaiting;
     }
 
+    public long getDuration() {
+        return duration;
+    }
+
     public synchronized int status() {
         return status;
     }

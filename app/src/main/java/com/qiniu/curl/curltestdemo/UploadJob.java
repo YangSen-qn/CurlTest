@@ -6,6 +6,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +18,30 @@ public class UploadJob {
     private static final String JobCacheName = "UploadJob.json";
 
     private Logger logger;
+    private String debugFile;
+    private BufferedWriter debugWriter;
     private String jobName;
     private UpCancellationSignal cancellationSignal;
 
     private boolean isCompleted = false;
+    private UploadTaskGroup currentTaskGroup;
     private List<UploadTaskGroup> taskGroups = new ArrayList<>();
 
-    public UploadJob(String jobName, Logger logger, UpCancellationSignal cancellationSignal) {
+    public UploadJob(String jobName, Logger loggerParam, UpCancellationSignal cancellationSignal) {
         this.jobName = jobName;
-        this.logger = logger;
+        this.debugFile = Tools.tmpDir() + "/" + jobName + "_debug.log";
+        try {
+            this.debugWriter = new BufferedWriter(new FileWriter(this.debugFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.logger = new Logger() {
+            @Override
+            public void log(String info) {
+                appendDebugInfo(info);
+                loggerParam.log(info);
+            }
+        };
         this.cancellationSignal = cancellationSignal;
         createTasks();
     }
@@ -42,8 +61,19 @@ public class UploadJob {
         }
     }
 
-    private void prepare() {
-        for (UploadTaskGroup group: taskGroups) {
+    public void releaseResource() {
+        if (debugWriter != null) {
+            try {
+                debugWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void prepare() {
+        setCompleted(false);
+        for (UploadTaskGroup group : taskGroups) {
             group.prepare();
         }
     }
@@ -58,13 +88,17 @@ public class UploadJob {
                     if (cancellationSignal != null && cancellationSignal.isCancelled()) {
                         break;
                     }
+                    currentTaskGroup = group;
                     group.run();
                     saveTasksToLocal();
                 }
-                removeTasksInfoFromLocalIfNeeded();
                 setCompleted(true);
             }
         }).start();
+    }
+
+    public UploadTaskGroup currentTask() {
+        return currentTaskGroup;
     }
 
     public int taskCount() {
@@ -87,6 +121,19 @@ public class UploadJob {
 
     private synchronized void setCompleted(boolean completed) {
         isCompleted = completed;
+    }
+
+    public String reportInfo() {
+        String info = "";
+        for (UploadTaskGroup group : taskGroups) {
+            if (group != null) {
+                String groupInfo = group.reportInfo();
+                if (groupInfo != null && groupInfo.length() > 0) {
+                    info += groupInfo + "\n";
+                }
+            }
+        }
+        return info;
     }
 
     // -------- 数据缓存 -----------
@@ -126,11 +173,40 @@ public class UploadJob {
         return Cache.cacheData(JobCacheName, jsonData);
     }
 
+    public void clearJobCacheIfNeeded() {
+        removeDebugInfoFromLocalIfNeeded();
+        removeTasksInfoFromLocalIfNeeded();
+    }
+
     private void removeTasksInfoFromLocalIfNeeded() {
         if (executedTaskCount() == taskCount()) {
             Cache.removeCache(JobCacheName);
         }
     }
+
+    private void appendDebugInfo(String info) {
+        if (debugWriter == null) {
+            return;
+        }
+        try {
+            debugWriter.write(info);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void removeDebugInfoFromLocalIfNeeded() {
+        if (executedTaskCount() != taskCount()) {
+            return;
+        }
+
+        File file = new File(this.debugFile);
+        if (file.exists() && file.isFile()) {
+            file.delete();
+        }
+    }
+
+
 
     //----------- json ------------
     private JSONObject toJsonData() {

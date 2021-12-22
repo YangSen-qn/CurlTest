@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Http3 测试</string>
-    <string name="main_progress_name">进度</string>
+    <string name="main_upload_id_label">上传标识:</string>
     <string name="main_progress_task_total">总任务数:</string>
     <string name="main_progress_task_executed">已执行任务数:</string>
+    <string name="main_upload_current_task_progress_label">当前任务进度:</string>
     <string name="upload_label">上传</string>
 
     <dimen name="nav_space">20dp</dimen>

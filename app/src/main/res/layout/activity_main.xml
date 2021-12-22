@@ -17,13 +17,29 @@
             android:layout_marginTop="20dp">
 
             <TextView
-                android:id="@+id/main_progress_title_label"
+                android:id="@+id/main_upload_id_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/left_space"
-                android:text="@string/main_progress_name"
-                android:textSize="@dimen/font_size_big"
+                android:text="@string/main_upload_id_label"
+                android:textSize="@dimen/font_size"
                 tools:ignore="SpUsage" />
+
+            <EditText
+                android:id="@+id/main_upload_id"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="@dimen/inner_space"
+                android:paddingStart="@dimen/inner_space"
+                android:paddingEnd="@dimen/inner_space"
+                android:layout_toEndOf="@+id/main_progress_task_count_label"
+                android:layout_alignEnd="@+id/main_progress_info"
+                android:background="@drawable/bg_stoke"
+                android:scrollbars="vertical"
+                android:maxLines="2"
+                android:textSize="@dimen/font_size_small"
+                android:text=""
+                tools:ignore="RtlSymmetry,SpUsage" />
 
             <TextView
                 android:id="@+id/main_progress_task_count_label"
@@ -31,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/inner_space"
                 android:layout_marginStart="@dimen/left_space"
-                android:layout_below="@+id/main_progress_title_label"
+                android:layout_below="@+id/main_upload_id"
                 android:text="@string/main_progress_task_total"
                 android:textSize="@dimen/font_size"
                 tools:ignore="SpUsage" />
@@ -68,6 +84,32 @@
                 tools:ignore="SpUsage" />
 
             <TextView
+                android:id="@+id/main_current_task_progress_label"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginTop="@dimen/inner_space"
+                android:layout_marginStart="@dimen/left_space"
+                android:layout_below="@+id/main_progress_task_count_label"
+                android:text="@string/main_upload_current_task_progress_label"
+                android:textSize="@dimen/font_size"
+                tools:ignore="SpUsage" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/main_current_task_progress"
+                android:layout_width="200dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="@dimen/inner_space"
+                android:layout_marginStart="@dimen/inner_space"
+                android:paddingTop="12dp"
+                android:layout_below="@+id/main_progress_task_count_label"
+                android:layout_toEndOf="@+id/main_current_task_progress_label"
+                android:layout_alignEnd="@+id/main_progress_info"
+                android:scrollbars="vertical"
+                android:textSize="@dimen/font_size_small"
+                android:text=""
+                tools:ignore="SpUsage" />
+
+            <TextView
                 android:id="@+id/main_progress_info"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
@@ -75,10 +117,11 @@
                 android:paddingBottom="@dimen/inner_space"
                 android:paddingStart="@dimen/inner_space"
                 android:paddingEnd="@dimen/inner_space"
+                android:layout_marginTop="@dimen/inner_space"
                 android:layout_marginBottom="@dimen/inner_space"
                 android:layout_marginStart="@dimen/left_space"
                 android:layout_marginEnd="@dimen/right_space"
-                android:layout_below="@+id/main_progress_task_count_label"
+                android:layout_below="@+id/main_current_task_progress_label"
                 android:background="@drawable/bg_stoke"
                 android:scrollbars="vertical"
                 android:textSize="@dimen/font_size_small"
