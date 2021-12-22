@@ -157,7 +157,11 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     }
 
     @Override
-    public void log(String info) {
+    public void log(boolean isDetail, String info) {
+        if (isDetail) {
+            return;
+        }
+
         synchronized (this) {
             logInfo += info ;
         }

@@ -93,14 +93,15 @@ public class UploadTaskGroup {
             isRunning = true;
         }
 
-        logger.log("task group start:" + taskName);
+        logger.log(false, "task group start:" + taskName);
         completeWorkCount = 0;
         Wait wait = new Wait();
         for (int i = 0; i < concurrentCount; i++) {
+            final int index = i;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    doUpload();
+                    doUpload(index);
 
                     synchronized (wait) {
                         completeWorkCount += 1;
@@ -112,15 +113,15 @@ public class UploadTaskGroup {
             }).start();
         }
         wait.startWait();
-        logger.log(description());
-        logger.log("task group end:" + taskName + "\n");
+        logger.log(false, description());
+        logger.log(false, "task group end:" + taskName + "\n");
 
         synchronized (this) {
             isRunning = false;
         }
     }
 
-    private void doUpload() {
+    private void doUpload(int workIndex) {
         UploadTask task = null;
         do {
             task = getNextNeedUploadTask();
@@ -129,6 +130,7 @@ public class UploadTaskGroup {
             }
 
             if (cancellationSignal != null && cancellationSignal.isCancelled()) {
+                logger.log(false, "task cancelled and work stop:" + workIndex);
                 break;
             }
         } while (task != null);

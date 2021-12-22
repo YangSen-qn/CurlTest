@@ -37,11 +37,11 @@ public class UploadJob {
         this.debugFile = Tools.tmpDir() + "/" + jobName + "_debug.log";
         this.logger = new Logger() {
             @Override
-            public void log(String info) {
+            public void log(boolean isDetail, String info) {
                 if (info != null && info.length() > 0) {
                     info += "\n";
                     appendDebugInfo(info);
-                    loggerParam.log(info);
+                    loggerParam.log(isDetail, info);
                 }
             }
         };
@@ -55,10 +55,10 @@ public class UploadJob {
     private void createTasks() {
         String error = loadTasksFromLocal();
         if (error == null) {
-            logger.log("从本地成功加载 Job:" + jobName);
+            logger.log(false, "从本地成功加载 Job:" + jobName);
             return;
         }
-        logger.log("从本地加载 Job:" + jobName + " 失败:" + error);
+        logger.log(false, "从本地加载 Job:" + jobName + " 失败:" + error);
 
         for (TestCase test : TestCase.testCases) {
             taskGroups.add(new UploadTaskGroup(test, jobName, logger, cancellationSignal));
@@ -76,12 +76,13 @@ public class UploadJob {
     public void run() {
         prepare();
 
-        logger.log("\n job:" + jobName + " start");
+        logger.log(false,"\n job:" + jobName + " start");
         new Thread(new Runnable() {
             @Override
             public void run() {
                 for (UploadTaskGroup group : taskGroups) {
                     if (cancellationSignal != null && cancellationSignal.isCancelled()) {
+                        logger.log(false,"job:" + jobName + " cancelled");
                         break;
                     }
                     currentTaskGroup = group;
@@ -89,7 +90,7 @@ public class UploadJob {
                     saveTasksToLocal();
                 }
                 releaseDebugWriter();
-                logger.log("job:" + jobName + " end \n");
+                logger.log(false,"job:" + jobName + " end \n");
                 setCompleted(true);
             }
         }).start();

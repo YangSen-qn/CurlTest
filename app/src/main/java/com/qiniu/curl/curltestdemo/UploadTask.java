@@ -85,7 +85,7 @@ public class UploadTask implements Runnable {
 
         long end = Utils.currentTimestamp();
         duration = end - start;
-        logger.log(description());
+        logger.log(true, description());
     }
 
     public boolean isComplete() {
@@ -115,7 +115,7 @@ public class UploadTask implements Runnable {
     private boolean upload(Complete complete) {
         String filepath = Tools.getFileOfSize(fileSize);
         if (filepath == null || filepath.length() == 0) {
-            logger.log("error: create log file failed");
+            logger.log(false,"error: create log file failed");
             return false;
         }
 
