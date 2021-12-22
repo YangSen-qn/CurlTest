@@ -93,6 +93,7 @@ public class UploadTaskGroup {
             isRunning = true;
         }
 
+        logger.log("task group start:" + taskName);
         completeWorkCount = 0;
         Wait wait = new Wait();
         for (int i = 0; i < concurrentCount; i++) {
@@ -111,8 +112,8 @@ public class UploadTaskGroup {
             }).start();
         }
         wait.startWait();
-
         logger.log(description());
+        logger.log("task group end:" + taskName + "\n");
 
         synchronized (this) {
             isRunning = false;
@@ -159,7 +160,7 @@ public class UploadTaskGroup {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.putOpt("task_name", taskName);
-            jsonObject.putOpt("request_type", requestType);
+            jsonObject.putOpt("request_type", requestType == UploadTask.TypeHttp3 ? "http3" : "http2");
             jsonObject.putOpt("file_count", fileCount);
             jsonObject.putOpt("file_size", fileSize);
             jsonObject.putOpt("concurrent_count", concurrentCount);

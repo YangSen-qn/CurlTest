@@ -55,9 +55,10 @@ public class UploadJob {
     private void createTasks() {
         String error = loadTasksFromLocal();
         if (error == null) {
+            logger.log("从本地成功加载 Job:" + jobName);
             return;
         }
-        logger.log(error);
+        logger.log("从本地加载 Job:" + jobName + " 失败:" + error);
 
         for (TestCase test : TestCase.testCases) {
             taskGroups.add(new UploadTaskGroup(test, jobName, logger, cancellationSignal));
@@ -75,6 +76,7 @@ public class UploadJob {
     public void run() {
         prepare();
 
+        logger.log("\n job:" + jobName + " start");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -87,6 +89,7 @@ public class UploadJob {
                     saveTasksToLocal();
                 }
                 releaseDebugWriter();
+                logger.log("job:" + jobName + " end \n");
                 setCompleted(true);
             }
         }).start();
@@ -161,7 +164,7 @@ public class UploadJob {
         String cacheName = getCacheName();
         byte[] data = Cache.getCacheData(cacheName);
         if (data == null) {
-            return "warning: not find cache data for key:" + cacheName;
+            return "not find cache data for key:" + cacheName;
         }
 
         UploadJob job = null;

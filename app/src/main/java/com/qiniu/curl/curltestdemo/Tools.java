@@ -1,5 +1,7 @@
 package com.qiniu.curl.curltestdemo;
 
+import android.annotation.SuppressLint;
+
 import com.qiniu.android.utils.Utils;
 
 import org.json.JSONObject;
@@ -8,7 +10,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 
 public class Tools {
 
@@ -92,5 +97,12 @@ public class Tools {
         } else {
             return df.format((double) kiloSize / 1024 / 1024) + "G";
         }
+    }
+
+    public static String getFormatDate(long timestamp) {
+        Date date = new Date(timestamp);
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(date);
     }
 }

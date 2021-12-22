@@ -26,7 +26,7 @@ public class LogReporter {
     }
 
     private static void reportUploadJobInfo(UploadJob job, Complete complete) {
-        String key = "job_info_" + job.getJobName() + "_" + job.getCreateTimestamp();
+        String key = "job_info_" + job.getJobName() + "_" + Tools.getFormatDate(job.getCreateTimestamp());
         Uploader.uploadData(job.reportInfo(), key, new Uploader.Complete() {
             @Override
             public void complete(boolean isSuccess, String error) {
@@ -51,7 +51,7 @@ public class LogReporter {
             return;
         }
 
-        String key = "job_debug_" + job.getJobName() + "_" + job.getCreateTimestamp();
+        String key = "job_debug_" + job.getJobName() + "_" + Tools.getFormatDate(job.getCreateTimestamp());
         Uploader.uploadFile(debugFilePath, key, new Uploader.Complete() {
             @Override
             public void complete(boolean isSuccess, String error) {
