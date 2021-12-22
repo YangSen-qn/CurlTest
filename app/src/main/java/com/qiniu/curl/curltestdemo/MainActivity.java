@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             uploadBtn.setText("开始任务");
         } else if (status == StatusUploading) {
             jobIdET.setEnabled(false);
-            uploadBtn.setText("任务执行中...");
+            uploadBtn.setText("暂停任务");
         } else if (status == StatusCancelling) {
             uploadBtn.setText("任务取消中...");
         } else if (status == StatusUploadLog) {
