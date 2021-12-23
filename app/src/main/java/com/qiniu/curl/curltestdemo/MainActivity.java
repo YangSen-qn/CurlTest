@@ -1,6 +1,5 @@
 package com.qiniu.curl.curltestdemo;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -29,10 +28,10 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     private static final String defaultAlert = DefaultAlert();
     private static String DefaultAlert() {
         String alert = "操作步骤：\n";
-        alert += "1. 【输入上传标识】上传标识为上传进度缓存的 id ；在点击 [开始任务] 时程序会根据此 id 加载缓存的上传进度；在上传过程中不允许修改此 id 。\n";
+        alert += "1. 【输入上传标识】上传标识为上传进度缓存的 id ；在点击 [开始任务] 时程序会根据此 id 加载当前手机内缓存的上传进度；在上传过程中不允许修改此 id 。\n";
         alert += "2. 【等待上传任务结束】此过程耗时较长；进度中会展示任务的状态；上传过程中会缓存状态，因此上传过程中可以暂停任务。\n";
         alert += "3. 【上传日志】当按钮变为 [上传日志] 则表明上传结束，可进行日志上传；点击后按钮显示 [日志上传中...] ，此过程不可取消。\n";
-        alert += "4. 【任务完成】当按钮重新变为 [开始任务] 则表示任务已经完成。\n";
+        alert += "4. 【任务完成】当按钮重新变为 [开始任务] 则表示此任务已经完成，此缓存会被从手机中清除；如需再执行任务重复步骤 1 ~ 4。\n";
         alert += "\n";
         alert += "注：\n";
         alert += "   在任务的任何状态均可杀死 App, 下次打开 App 在输入上传标识并点击[上传]按钮后，会根据之前的君度继续进行。\n\n";
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
                         updateStatus();
                         job = null;
                         log(false, "日志上传成功 \n");
-                        log(false, "😁😁😁 恭喜您上传成功 😁😁😁\n");
+                        log(false, "😁😁😁 完成任务啦 😁😁😁\n");
                     } else {
                         status = StatusUploadLog;
                     }
@@ -164,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             jobIdET.setEnabled(false);
             uploadBtn.setText("暂停任务");
         } else if (status == StatusCancelling) {
-            uploadBtn.setText("任务取消中...");
+            uploadBtn.setText("任务暂停中...");
         } else if (status == StatusUploadLog) {
             uploadBtn.setText("上传日志");
         } else if (status == StatusUploadingLog) {
