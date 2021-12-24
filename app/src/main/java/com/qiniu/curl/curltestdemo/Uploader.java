@@ -10,6 +10,7 @@ import com.qiniu.android.storage.UpCancellationSignal;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
+import com.qiniu.android.utils.LogUtil;
 import com.qiniu.client.curl.CurlClient;
 
 import org.json.JSONObject;
@@ -43,7 +44,9 @@ public class Uploader implements Dns {
         return Instance;
     }
     private Uploader() {
+        LogUtil.enableLog(true);
         GlobalConfiguration.getInstance().dns = this;
+        GlobalConfiguration.getInstance().enableHttp3 = true;
     }
 
     public void uploadFile(String file, String key, Complete complete) {
@@ -60,10 +63,7 @@ public class Uploader implements Dns {
                 .zone(new FixedZone(new String[]{UploadHost}));
 
         if (useHttp3) {
-            GlobalConfiguration.getInstance().enableHttp3 = true;
             builder.requestClient(new CurlClient());
-        } else {
-            GlobalConfiguration.getInstance().enableHttp3 = false;
         }
 
         Configuration cfg = builder.build();
