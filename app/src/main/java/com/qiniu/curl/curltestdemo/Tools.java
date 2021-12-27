@@ -122,20 +122,20 @@ public class Tools {
      * @param mContext
      * @return
      */
-    public static int getAppVersion(Context mContext) {
+    public static String getAppVersion(Context mContext) {
         if (mContext == null) {
             mContext = context;
         }
 
-        int versionCode = 0;
+        String version = "";
         try {
             //获取软件版本号，对应AndroidManifest.xml下android:versionCode
-            versionCode = mContext.getPackageManager().
-                    getPackageInfo(mContext.getPackageName(), 0).versionCode;
+            version = mContext.getPackageManager().
+                    getPackageInfo(mContext.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        return versionCode;
+        return version;
     }
 
     public static String getSystemInfo(Context mContext) {

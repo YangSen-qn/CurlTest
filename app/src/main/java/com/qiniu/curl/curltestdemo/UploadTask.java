@@ -16,6 +16,7 @@ public class UploadTask implements Runnable {
     public static final int StatusCancelled = 12;
     public static final int StatusCompleted = 13;
 
+    private String network;
     private int type;
     private long fileSize;
     private String key;
@@ -55,6 +56,7 @@ public class UploadTask implements Runnable {
             return;
         }
         setStatus(StatusUploading);
+        network = Tools.getNetworkState(null);
 
         final Wait wait = new Wait();
         long start = Utils.currentTimestamp();
@@ -125,6 +127,7 @@ public class UploadTask implements Runnable {
     private String description() {
         String desc = "";
         desc += key;
+        desc += " Network:" + network;
         desc += " " + (type == UploadTask.TypeHttp2 ? "http2" : "http3");
         desc += " Duration:" + duration + "ms";
         desc += " Success:" + (isSuccess ? "true" : " false");
@@ -137,6 +140,7 @@ public class UploadTask implements Runnable {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.putOpt("type", type);
+            jsonObject.putOpt("network", network);
             jsonObject.putOpt("file_size", fileSize);
             jsonObject.putOpt("key", key);
             jsonObject.putOpt("duration", duration);
@@ -159,6 +163,7 @@ public class UploadTask implements Runnable {
         task.cancellationSignal = cancellationSignal;
         try {
             task.type = jsonObject.getInt("type");
+            task.network = jsonObject.getString("network");
             task.fileSize = jsonObject.getLong("file_size");
             task.key = jsonObject.getString("key");
             task.duration = jsonObject.getLong("duration");

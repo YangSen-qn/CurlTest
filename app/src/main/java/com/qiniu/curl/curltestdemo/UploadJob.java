@@ -77,7 +77,7 @@ public class UploadJob {
         prepare();
 
         logger.log(false,"\n");
-        logger.log(false, "App  Version:" + Tools.getAppVersion(null) + "");
+        logger.log(false, "App  Version:" + Tools.getAppVersion(null));
         logger.log(false, "System  Info:" + Tools.getSystemInfo(null));
         logger.log(false, "Network Info:" + Tools.getNetworkState(null));
         logger.log(false,"\n");
