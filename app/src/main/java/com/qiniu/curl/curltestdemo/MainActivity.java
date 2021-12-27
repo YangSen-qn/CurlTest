@@ -12,6 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pgyersdk.activity.FeedbackActivity;
+import com.pgyersdk.feedback.PgyFeedbackShakeManager;
+import com.pgyersdk.update.PgyUpdateManager;
 import com.qiniu.android.storage.UpCancellationSignal;
 import com.qiniu.android.utils.AsyncRun;
 
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         alert += "4. 【任务完成】当按钮重新变为 [开始任务] 则表示此任务已经完成，此任务的缓存会从手机中清除；如需再执行任务重复步骤 1 ~ 4。\n";
         alert += "\n";
         alert += "注：\n";
+        alert += "   想反馈？请使劲摇您的手机，会有提示框！！！";
         alert += "   在任务的任何状态均可杀死 App, 下次打开 App 在输入上传标识并点击[上传]按钮后，会加载任务进度缓存并继续进行任务。\n\n";
         return alert;
     }
@@ -55,6 +59,14 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        PgyUpdateManager.setIsForced(false); //设置是否强制更新。true为强制更新；false为不强制更新（默认值）。
+        PgyUpdateManager.register(this);
+        PgyFeedbackShakeManager.setShakingThreshold(1000); // 自定义摇一摇的灵敏度，默认为950，数值越小灵敏度越高。
+        PgyFeedbackShakeManager.register(MainActivity.this); // 以对话框的形式弹出，对话框只支持竖屏
+        // 以Activity的形式打开，这种情况下必须在AndroidManifest.xml配置FeedbackActivity
+        FeedbackActivity.setBarImmersive(true); // 打开沉浸式,默认为false
+        PgyFeedbackShakeManager.register(MainActivity.this, true); // 相当于使用Dialog的方式；
 
         Tools.context = this;
 
