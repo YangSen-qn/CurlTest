@@ -1,5 +1,6 @@
 package com.qiniu.curl.curltestdemo;
 
+import com.pgyersdk.crash.PgyCrashManager;
 import com.qiniu.android.storage.UpCancellationSignal;
 
 import org.json.JSONArray;
@@ -102,6 +103,7 @@ public class UploadJob {
                     setCompleted(true);
                 } catch (Exception e) {
                     logger.log(false,"[Error]:" + e.toString());
+                    PgyCrashManager.reportCaughtException(Tools.context, e);
                     setCompleted(true);
                 }
             }

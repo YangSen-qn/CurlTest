@@ -9,8 +9,8 @@ android {
         applicationId "com.qiniu.curl.curltestdemo"
         minSdk 22
         targetSdk 31
-        versionCode 103
-        versionName "1.0.3"
+        versionCode 107
+        versionName "1.0.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

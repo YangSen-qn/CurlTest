@@ -118,7 +118,7 @@ public class UploadTask implements Runnable {
         Uploader.getInstance().uploadFile(filepath, key, type == TypeHttp3, cancellationSignal, new Uploader.Complete() {
             @Override
             public void complete(boolean isSuccess, String error) {
-                complete.complete(true, error);
+                complete.complete(isSuccess, error);
             }
         });
         return true;

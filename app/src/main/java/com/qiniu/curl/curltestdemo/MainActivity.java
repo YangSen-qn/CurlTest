@@ -1,8 +1,17 @@
 package com.qiniu.curl.curltestdemo;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -14,7 +23,9 @@ import android.widget.Toast;
 
 import com.pgyersdk.activity.FeedbackActivity;
 import com.pgyersdk.feedback.PgyFeedbackShakeManager;
+import com.pgyersdk.javabean.AppBean;
 import com.pgyersdk.update.PgyUpdateManager;
+import com.pgyersdk.update.UpdateManagerListener;
 import com.qiniu.android.storage.UpCancellationSignal;
 import com.qiniu.android.utils.AsyncRun;
 
@@ -29,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     public static final int StatusUploadingLog = 14;
 
     private static final String defaultAlert = DefaultAlert();
+
     private static String DefaultAlert() {
         String alert = "操作步骤：\n";
         alert += "1. 【输入上传标识】上传标识为上传进度缓存的 id ；在点击 [开始任务] 时程序会根据此 id 加载当前手机内缓存的上传进度；在上传过程中不允许修改此 id 。\n";
@@ -61,8 +73,40 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         setContentView(R.layout.activity_main);
 
         PgyUpdateManager.setIsForced(false); //设置是否强制更新。true为强制更新；false为不强制更新（默认值）。
-        PgyUpdateManager.register(this);
-        PgyFeedbackShakeManager.setShakingThreshold(1000); // 自定义摇一摇的灵敏度，默认为950，数值越小灵敏度越高。
+        PgyUpdateManager.register(MainActivity.this,
+                new UpdateManagerListener() {
+
+                    @Override
+                    public void onUpdateAvailable(final String result) {
+
+                        // 将新版本信息封装到AppBean中
+                        final AppBean appBean = getAppBeanFromString(result);
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("更新")
+                                .setMessage(appBean.getReleaseNote())
+                                .setCancelable(true)
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Uri uri = Uri.parse("https://www.pgyer.com/o6kj");
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                        startActivity(intent);
+                                    }
+                                }).show();
+                    }
+
+                    @Override
+                    public void onNoUpdateAvailable() {
+                    }
+                });
+
+        PgyFeedbackShakeManager.setShakingThreshold(950); // 自定义摇一摇的灵敏度，默认为950，数值越小灵敏度越高。
         PgyFeedbackShakeManager.register(MainActivity.this); // 以对话框的形式弹出，对话框只支持竖屏
         // 以Activity的形式打开，这种情况下必须在AndroidManifest.xml配置FeedbackActivity
         FeedbackActivity.setBarImmersive(true); // 打开沉浸式,默认为false
@@ -87,6 +131,12 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
                 uploadBtnAction();
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        requestPermissions();
     }
 
     private void uploadBtnAction() {
@@ -127,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             executedTaskCount = job.executedTaskCount();
             UploadTaskGroup currentTask = job.currentTask();
             if (currentTask != null) {
-                currentTaskProgress = (int)(currentTask.progress() * 100);
+                currentTaskProgress = (int) (currentTask.progress() * 100);
             }
         }
 
@@ -190,6 +240,14 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         });
     }
 
+    private void requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //没有权限则申请权限
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
     @Override
     public void log(boolean isDetail, String info) {
         if (isDetail) {
@@ -197,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         }
 
         synchronized (this) {
-            logInfo += info ;
+            logInfo += info;
         }
     }
 
