@@ -76,22 +76,34 @@ public class UploadJob {
     public void run() {
         prepare();
 
-        logger.log(false,"\n job:" + jobName + " start\n");
+        logger.log(false,"\n");
+        logger.log(false, "App  Version:" + Tools.getAppVersion(null) + "");
+        logger.log(false, "System  Info:" + Tools.getSystemInfo(null));
+        logger.log(false, "Network Info:" + Tools.getNetworkState(null));
+        logger.log(false,"\n");
+        logger.log(false,"job:" + jobName + " start");
+        logger.log(false,"\n");
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (UploadTaskGroup group : taskGroups) {
-                    if (cancellationSignal != null && cancellationSignal.isCancelled()) {
-                        logger.log(false,"job:" + jobName + " cancelled");
-                        break;
+                try {
+                    for (UploadTaskGroup group : taskGroups) {
+                        if (cancellationSignal != null && cancellationSignal.isCancelled()) {
+                            logger.log(false,"job:" + jobName + " cancelled");
+                            break;
+                        }
+                        currentTaskGroup = group;
+                        group.run();
+                        saveTasksToLocal();
                     }
-                    currentTaskGroup = group;
-                    group.run();
-                    saveTasksToLocal();
+                    releaseDebugWriter();
+                    logger.log(false,"job:" + jobName + " end");
+                    logger.log(false,"\n");
+                    setCompleted(true);
+                } catch (Exception e) {
+                    logger.log(false,"[Error]:" + e.toString());
+                    setCompleted(true);
                 }
-                releaseDebugWriter();
-                logger.log(false,"job:" + jobName + " end \n");
-                setCompleted(true);
             }
         }).start();
     }

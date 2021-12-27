@@ -1,6 +1,14 @@
 package com.qiniu.curl.curltestdemo;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.telephony.TelephonyManager;
+
+import androidx.core.app.ActivityCompat;
 
 import com.qiniu.android.utils.Utils;
 
@@ -16,6 +24,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 
 public class Tools {
+    public static Context context;
 
     public static String getToken() {
         return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:Lg3QQz1QnODk-PxSfnE8xpR27lM=:eyJzY29wZSI6Imh0dHAzLXRlc3QiLCJkZWFkbGluZSI6MTY1MDUyMjg5NH0=";
@@ -104,5 +113,109 @@ public class Tools {
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(date);
+    }
+
+
+    /**
+     * 获取当前apk的版本号
+     *
+     * @param mContext
+     * @return
+     */
+    public static int getAppVersion(Context mContext) {
+        if (mContext == null) {
+            mContext = context;
+        }
+
+        int versionCode = 0;
+        try {
+            //获取软件版本号，对应AndroidManifest.xml下android:versionCode
+            versionCode = mContext.getPackageManager().
+                    getPackageInfo(mContext.getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode;
+    }
+
+    public static String getSystemInfo(Context mContext) {
+        if (mContext == null) {
+            mContext = context;
+        }
+
+        String info = android.os.Build.MODEL + "-" + android.os.Build.VERSION.RELEASE;
+        return info;
+    }
+
+    private static final String NETWORK_Permissions_Reject = "permissions reject";
+    private static final String NETWORK_OTHER = "other";
+    private static final String NETWORK_WIFI = "wifi";
+    private static final String NETWORK_2G = "2G";
+    private static final String NETWORK_3G = "3G";
+    private static final String NETWORK_4G = "4G";
+    private static final String NETWORK_5G = "5G";
+    public static String getNetworkState(Context mContext) {
+        if (mContext == null) {
+            mContext = context;
+        }
+
+        ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE); // 获取网络服务
+        if (null == connManager) { // 为空则认为无网络
+            return NETWORK_OTHER;
+        }
+
+        // 获取网络类型，如果为空，返回无网络
+        NetworkInfo activeNetInfo = connManager.getActiveNetworkInfo();
+        if (activeNetInfo == null || !activeNetInfo.isAvailable()) {
+            return NETWORK_OTHER;
+        }
+        // 判断是否为WIFI
+        NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (null != wifiInfo) {
+            NetworkInfo.State state = wifiInfo.getState();
+            if (null != state) {
+                if (state == NetworkInfo.State.CONNECTED || state == NetworkInfo.State.CONNECTING) {
+                    return NETWORK_WIFI;
+                }
+            }
+        }
+        // 若不是WIFI，则去判断是2G、3G、4G网
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (telephonyManager == null) return NETWORK_OTHER;
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return NETWORK_Permissions_Reject;
+        }
+
+        int networkType = telephonyManager.getNetworkType();
+        switch (networkType) {
+            // 2G网络
+            case TelephonyManager.NETWORK_TYPE_GPRS:
+            case TelephonyManager.NETWORK_TYPE_CDMA:
+            case TelephonyManager.NETWORK_TYPE_EDGE:
+            case TelephonyManager.NETWORK_TYPE_1xRTT:
+            case TelephonyManager.NETWORK_TYPE_IDEN:
+                return NETWORK_2G;
+            // 3G网络
+            case TelephonyManager.NETWORK_TYPE_EVDO_A:
+            case TelephonyManager.NETWORK_TYPE_UMTS:
+            case TelephonyManager.NETWORK_TYPE_EVDO_0:
+            case TelephonyManager.NETWORK_TYPE_HSDPA:
+            case TelephonyManager.NETWORK_TYPE_HSUPA:
+            case TelephonyManager.NETWORK_TYPE_HSPA:
+            case TelephonyManager.NETWORK_TYPE_EVDO_B:
+            case TelephonyManager.NETWORK_TYPE_EHRPD:
+            case TelephonyManager.NETWORK_TYPE_HSPAP:
+                return NETWORK_3G;
+            // 4G网络
+            case TelephonyManager.NETWORK_TYPE_LTE:
+            case 19:// 聚波载合 4G+
+                return NETWORK_4G;
+            // 5G
+//            case TelephonyManager.NETWORK_TYPE_NR:// 需要 SdkVersion>=29
+            case 20:// 当 SdkVersion<=28 直接写20
+                return NETWORK_5G;
+            default:
+                return NETWORK_OTHER;
+        }
     }
 }

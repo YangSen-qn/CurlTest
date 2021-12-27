@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Tools.context = this;
+
         jobIdET = findViewById(R.id.main_upload_id);
         jobIdET.setHint("上传标识会为上传任务进度缓存的 id");
         currentTaskProgressPB = findViewById(R.id.main_current_task_progress);
@@ -97,21 +99,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         } else if (status == StatusUploadLog) {
             status = StatusUploadingLog;
             updateStatus();
-            LogReporter.reportUploadJob(job, new LogReporter.Complete() {
-                @Override
-                public void complete(boolean isSuccess) {
-                    if (isSuccess) {
-                        status = StatusWaiting;
-                        job.clearJobCacheIfNeeded();
-                        updateStatus();
-                        job = null;
-                        log(false, "日志上传成功 \n");
-                        log(false, "😁😁😁 完成任务啦 😁😁😁\n");
-                    } else {
-                        status = StatusUploadLog;
-                    }
-                }
-            });
+            uploadLog();
         }
     }
 
@@ -148,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         if (job.isCompleted()) {
             if (job.taskCount() == job.executedTaskCount()) {
                 if (status == StatusUploading) {
-                    status = StatusUploadLog;
+                    status = StatusUploadingLog;
+                    uploadLog();
                 }
             } else {
                 status = StatusWaiting;
@@ -169,6 +158,24 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         } else if (status == StatusUploadingLog) {
             uploadBtn.setText("日志上传中...");
         }
+    }
+
+    private void uploadLog() {
+        LogReporter.reportUploadJob(job, new LogReporter.Complete() {
+            @Override
+            public void complete(boolean isSuccess) {
+                if (isSuccess) {
+                    status = StatusWaiting;
+                    job.clearJobCacheIfNeeded();
+                    updateStatus();
+                    job = null;
+                    log(false, "日志上传成功 \n");
+                    log(false, "😁😁😁 完成任务啦 😁😁😁\n");
+                } else {
+                    status = StatusUploadLog;
+                }
+            }
+        });
     }
 
     @Override

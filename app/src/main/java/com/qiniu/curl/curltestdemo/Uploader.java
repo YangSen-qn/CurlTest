@@ -25,10 +25,12 @@ public class Uploader implements Dns {
 
     private static final String UploadHost = "upload.qiniup.com";
     private static final String[] UploadIpList = new String[]{
-            "111.1.36.180", "218.98.28.87", "218.98.28.28",
-            "112.13.172.42", "112.13.172.39", "223.111.225.57",
-            "117.148.177.151", "223.111.225.66", "223.111.225.67",
-            "124.160.115.130"};
+            "111.1.36.180"};
+//    private static final String[] UploadIpList = new String[]{
+//            "111.1.36.180", "218.98.28.87", "218.98.28.28",
+//            "112.13.172.42", "112.13.172.39", "223.111.225.57",
+//            "117.148.177.151", "223.111.225.66", "223.111.225.67",
+//            "124.160.115.130"};
     private static final List<IDnsNetworkAddress> UploadAddress = getUploadAddress();
     private static List<IDnsNetworkAddress> getUploadAddress(){
         List<IDnsNetworkAddress> addresses = new ArrayList<>();
