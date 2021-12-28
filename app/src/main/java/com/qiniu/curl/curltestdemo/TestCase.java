@@ -8,8 +8,28 @@ public class TestCase {
     public static final long KB = 1;
     public static final long M = 1024;
     public static final TestCase[] testCases = getTestCases();
+
     private static TestCase[] getTestCases() {
         List<TestCase> caseList = new ArrayList<>();
+
+        // 8K
+        for (int i = 0; i < 10; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 8 * KB, 16, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 8 * KB, 16, false));
+        }
+
+        // 16K
+        for (int i = 0; i < 10; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 16 * KB, 16, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 16 * KB, 16, false));
+        }
+
+        // 32K
+        for (int i = 0; i < 10; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 32 * KB, 16, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 32 * KB, 16, false));
+        }
+
         // 64K
         for (int i = 0; i < 10; i++) {
             caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 64 * KB, 16, false));
