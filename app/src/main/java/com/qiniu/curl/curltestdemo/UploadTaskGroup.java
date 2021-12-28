@@ -13,6 +13,7 @@ import java.util.List;
 public class UploadTaskGroup {
 
     private Logger logger;
+    private boolean isResumeV2;
     private int requestType;
     private long fileCount;
     private long fileSize;
@@ -26,6 +27,7 @@ public class UploadTaskGroup {
 
     public UploadTaskGroup(TestCase testCase, String jobName, Logger logger, UpCancellationSignal cancellationSignal) {
         this.requestType = testCase.requestType;
+        this.isResumeV2 = testCase.isResumeV2;
         this.fileCount = testCase.fileCount;
         this.fileSize = testCase.fileSize;
         this.taskName = testCase.getCaseName(jobName);
@@ -35,12 +37,13 @@ public class UploadTaskGroup {
         createTasks();
     }
 
-    private UploadTaskGroup() {}
+    private UploadTaskGroup() {
+    }
 
     private void createTasks() {
-        for (int i = 0; i <fileCount; i++) {
+        for (int i = 0; i < fileCount; i++) {
             String key = taskName + "_" + i;
-            tasks.add(new UploadTask(requestType, fileSize, key, logger, cancellationSignal));
+            tasks.add(new UploadTask(requestType, fileSize, key, isResumeV2, logger, cancellationSignal));
         }
     }
 
@@ -51,7 +54,7 @@ public class UploadTaskGroup {
                 completedCount += 1;
             }
         }
-        return (double)completedCount / fileCount;
+        return (double) completedCount / fileCount;
     }
 
     public boolean isCompleted() {
@@ -150,11 +153,12 @@ public class UploadTaskGroup {
 
     private String description() {
         String desc = "";
-        desc += taskName + " ";
-        desc += requestType == UploadTask.TypeHttp2 ? "http2 " : "http3 ";
-        desc += "ConcurrentCount:" +  concurrentCount + " ";
-        desc += "FileCount:" +  fileCount + " ";
-        desc += "SuccessCount:" +  successCount() + " ";
+        desc += taskName;
+        desc += " ResumeV2:" + isResumeV2;
+        desc += requestType == UploadTask.TypeHttp2 ? " http2 " : " http3";
+        desc += " ConcurrentCount:" + concurrentCount;
+        desc += " FileCount:" + fileCount;
+        desc += " SuccessCount:" + successCount();
         return desc;
     }
 
@@ -175,7 +179,7 @@ public class UploadTaskGroup {
                 }
             }
             jsonObject.putOpt("success_count", successCount);
-            jsonObject.putOpt("average_duration", duration / successCount);
+            jsonObject.putOpt("average_duration", successCount > 0 ? duration / successCount : 0);
         } catch (JSONException e) {
             jsonObject = new JSONObject();
         }
@@ -218,7 +222,7 @@ public class UploadTaskGroup {
             taskGroup.concurrentCount = jsonObject.getInt("concurrent_count");
             taskGroup.tasks = new ArrayList<>();
             JSONArray taskJsonArray = jsonObject.getJSONArray("tasks");
-            for (int i = 0; i <taskJsonArray.length(); i++) {
+            for (int i = 0; i < taskJsonArray.length(); i++) {
                 UploadTask task = UploadTask.taskFromJson(taskJsonArray.getJSONObject(i), logger, cancellationSignal);
                 if (task == null) {
                     return null;

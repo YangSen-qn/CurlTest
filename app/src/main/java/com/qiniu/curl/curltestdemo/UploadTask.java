@@ -18,6 +18,7 @@ public class UploadTask implements Runnable {
 
     private String network;
     private int type;
+    private boolean isResumeV2;
     private long fileSize;
     private String key;
     private UpCancellationSignal cancellationSignal;
@@ -29,10 +30,11 @@ public class UploadTask implements Runnable {
     private Logger logger;
     private int status = StatusWaiting;
 
-    public UploadTask(int type, long fileSize, String key, Logger logger, UpCancellationSignal cancellationSignal) {
+    public UploadTask(int type, long fileSize, String key, boolean isResumeV2, Logger logger, UpCancellationSignal cancellationSignal) {
         this.type = type;
         this.fileSize = fileSize;
         this.key = key;
+        this.isResumeV2 = isResumeV2;
         this.logger = logger;
         this.cancellationSignal = cancellationSignal;
     }
@@ -115,7 +117,7 @@ public class UploadTask implements Runnable {
             return false;
         }
 
-        Uploader.getInstance().uploadFile(filepath, key, type == TypeHttp3, cancellationSignal, new Uploader.Complete() {
+        Uploader.getInstance().uploadFile(filepath, key, type == TypeHttp3, isResumeV2, cancellationSignal, new Uploader.Complete() {
             @Override
             public void complete(boolean isSuccess, String error) {
                 complete.complete(isSuccess, error);
@@ -128,6 +130,7 @@ public class UploadTask implements Runnable {
         String desc = "";
         desc += key;
         desc += " Network:" + network;
+        desc += " ResumeV2:" + isResumeV2;
         desc += " " + (type == UploadTask.TypeHttp2 ? "http2" : "http3");
         desc += " Duration:" + duration + "ms";
         desc += " Success:" + (isSuccess ? "true" : " false");
@@ -141,6 +144,7 @@ public class UploadTask implements Runnable {
         try {
             jsonObject.putOpt("type", type);
             jsonObject.putOpt("network", network);
+            jsonObject.putOpt("is_resume_v2", isResumeV2);
             jsonObject.putOpt("file_size", fileSize);
             jsonObject.putOpt("key", key);
             jsonObject.putOpt("duration", duration);
@@ -164,6 +168,7 @@ public class UploadTask implements Runnable {
         try {
             task.type = jsonObject.getInt("type");
             task.network = jsonObject.getString("network");
+            task.isResumeV2 = jsonObject.getBoolean("is_resume_v2");
             task.fileSize = jsonObject.getLong("file_size");
             task.key = jsonObject.getString("key");
             task.duration = jsonObject.getLong("duration");

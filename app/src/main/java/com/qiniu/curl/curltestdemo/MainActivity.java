@@ -81,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
 
                         // 将新版本信息封装到AppBean中
                         final AppBean appBean = getAppBeanFromString(result);
+                        if (appBean.getVersionName().equals(Tools.getAppVersion(null))) {
+                            return;
+                        }
+
                         new AlertDialog.Builder(MainActivity.this)
                                 .setTitle("更新")
                                 .setMessage(appBean.getReleaseNote())

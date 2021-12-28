@@ -52,10 +52,10 @@ public class Uploader implements Dns {
     }
 
     public void uploadFile(String file, String key, Complete complete) {
-        uploadFile(file, key, false, null, complete);
+        uploadFile(file, key, false, false, null, complete);
     }
 
-    public void uploadFile(String file, String key, boolean useHttp3, UpCancellationSignal cancellationSignal, Complete complete) {
+    public void uploadFile(String file, String key, boolean useHttp3, boolean isResumeV2, UpCancellationSignal cancellationSignal, Complete complete) {
         Configuration.Builder builder = new Configuration.Builder()
                 .putThreshold(1024 * 1024 * 4)
                 .resumeUploadVersion(Configuration.RESUME_UPLOAD_VERSION_V2)

@@ -60,6 +60,7 @@ public class UploadJob {
             return;
         }
         logger.log(false, "从本地加载 Job:" + jobName + " 失败:" + error);
+        PgyCrashManager.reportCaughtException(Tools.context, new Exception(error));
 
         for (TestCase test : TestCase.testCases) {
             taskGroups.add(new UploadTaskGroup(test, jobName, logger, cancellationSignal));
@@ -187,7 +188,7 @@ public class UploadJob {
         try {
             jsonObject = new JSONObject(new String(data));
             job = jobFromJson(jsonObject);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             return e.toString();
         }
 
@@ -243,6 +244,7 @@ public class UploadJob {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            debugWriter = null;
         }
     }
 
