@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         alert += "4. 【任务完成】当按钮重新变为 [开始任务] 则表示此任务已经完成，此任务的缓存会从手机中清除；如需再执行任务重复步骤 1 ~ 4。\n";
         alert += "\n";
         alert += "注：\n";
-        alert += "   想反馈？请使劲摇您的手机，会有提示框！！！";
+        alert += "   想反馈？那就使劲摇您的手机吧，会有提示框！！！\n";
         alert += "   在任务的任何状态均可杀死 App, 下次打开 App 在输入上传标识并点击[上传]按钮后，会加载任务进度缓存并继续进行任务。\n\n";
         return alert;
     }

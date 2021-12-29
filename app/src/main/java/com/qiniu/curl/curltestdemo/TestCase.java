@@ -13,47 +13,47 @@ public class TestCase {
         List<TestCase> caseList = new ArrayList<>();
 
         // 8K
-        for (int i = 0; i < 10; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 8 * KB, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 8 * KB, 16, false));
+        for (int i = 0; i < 50; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 10, 8 * KB, 6, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 10, 8 * KB, 6, false));
         }
 
         // 16K
-        for (int i = 0; i < 10; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 16 * KB, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 16 * KB, 16, false));
+        for (int i = 0; i < 50; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 10, 16 * KB, 6, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 10, 16 * KB, 6, false));
         }
 
         // 32K
-        for (int i = 0; i < 10; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 32 * KB, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 32 * KB, 16, false));
+        for (int i = 0; i < 50; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 10, 32 * KB, 6, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 10, 32 * KB, 6, false));
         }
 
         // 64K
-        for (int i = 0; i < 10; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 50, 64 * KB, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 50, 64 * KB, 16, false));
+        for (int i = 0; i < 50; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 10, 64 * KB, 6, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 10, 64 * KB, 6, false));
         }
 
         // 128K
-        for (int i = 0; i < 10; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 40, 128 * KB, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 40, 128 * KB, 16, false));
+        for (int i = 0; i < 50; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 10, 128 * KB, 6, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 10, 128 * KB, 6, false));
         }
 
         // 256K
-        for (int i = 0; i < 10; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 20, 256 * KB, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 20, 256 * KB, 16, false));
+        for (int i = 0; i < 20; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 10, 256 * KB, 6, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 10, 256 * KB, 6, false));
         }
 
         // 5M
         for (int i = 0; i < 4; i++) {
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 1, 5 * M, 16, true));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 1, 5 * M, 16, true));
-            caseList.add(new TestCase(UploadTask.TypeHttp2, 1, 5 * M, 16, false));
-            caseList.add(new TestCase(UploadTask.TypeHttp3, 1, 5 * M, 16, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 1, 5 * M, 2, true));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 1, 5 * M, 2, true));
+            caseList.add(new TestCase(UploadTask.TypeHttp2, 1, 5 * M, 2, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, 1, 5 * M, 2, false));
         }
 
         return caseList.toArray(new TestCase[0]);
