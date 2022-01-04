@@ -118,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
 
         Tools.context = this;
 
+        Tools.keepScreenLongLight(this);
+
         jobIdET = findViewById(R.id.main_upload_id);
         jobIdET.setHint("上传标识会为上传任务进度缓存的 id");
         currentTaskProgressPB = findViewById(R.id.main_current_task_progress);

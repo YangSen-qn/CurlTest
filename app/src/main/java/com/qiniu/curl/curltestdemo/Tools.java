@@ -2,11 +2,14 @@ package com.qiniu.curl.curltestdemo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.core.app.ActivityCompat;
 
@@ -217,5 +220,10 @@ public class Tools {
             default:
                 return NETWORK_OTHER;
         }
+    }
+
+    public static void keepScreenLongLight(Activity activity) {
+        Window window = activity.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 }
