@@ -181,6 +181,11 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         int executedTaskCount = 0;
         int currentTaskProgress = 0;
 
+        if (TestCase.testCases != null && status == StatusUpload) {
+            status = StatusUploading;
+            runTestCase();
+        }
+
         if (job != null) {
             taskCount = job.taskCount();
             executedTaskCount = job.executedTaskCount();
@@ -200,11 +205,6 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
                     stopRefreshTimer();
                 }
             }
-        }
-
-        if (TestCase.testCases != null && status == StatusUpload) {
-            status = StatusUploading;
-            runTestCase();
         }
 
         taskCountTV.setText("" + taskCount);
