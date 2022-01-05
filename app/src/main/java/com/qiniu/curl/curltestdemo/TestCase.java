@@ -1,13 +1,27 @@
 package com.qiniu.curl.curltestdemo;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class TestCase {
     public static final long KB = 1;
     public static final long M = 1024;
-    public static final TestCase[] testCases = getTestCases();
+    public static TestCase[] testCases = null;
 
     private static TestCase[] getTestCases() {
         List<TestCase> caseList = new ArrayList<>();
@@ -82,13 +96,73 @@ public class TestCase {
         return caseList.toArray(new TestCase[0]);
     }
 
+    public static void downloadTestCase(Complete complete) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String urlString = "http://r4i68qquh.hd-bkt.clouddn.com/test_case.json";
+                    Request request = new okhttp3.Request.Builder().get().url(urlString).build();
+                    OkHttpClient client = new OkHttpClient();
+                    Response response = client.newCall(request).execute();
+                    String jsonString = "";
+                    if (response.body() != null) {
+                        jsonString = response.body().byteString().string(StandardCharsets.UTF_8);
+                    }
+
+                    if (jsonString.length() == 0) {
+                        if (complete != null) {
+                            complete.complete("can't get test case");
+                        }
+                    }
+                    JSONObject jsonObject = new JSONObject(jsonString);
+                    parseTestCaseFromJson(jsonObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (complete != null) {
+                        complete.complete(e.toString());
+                    }
+                    return;
+                }
+
+                if (complete != null) {
+                    complete.complete(null);
+                }
+            }
+        }).start();
+    }
+
+    private static void parseTestCaseFromJson(JSONObject jsonObject) throws Exception {
+        JSONArray testCaseJsonArray = jsonObject.getJSONArray("test_case");
+        int size = testCaseJsonArray.length();
+        List<TestCase> testCaseList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            JSONObject testCaseJson = testCaseJsonArray.getJSONObject(i);
+            if (testCaseJson == null) {
+                continue;
+            }
+
+            int repeat = testCaseJson.getInt("repeat");
+            int fileCount = testCaseJson.getInt("file_size");
+            long fileSize = testCaseJson.getLong("file_size");
+            int concurrentCount = testCaseJson.getInt("concurrent_count");
+            boolean isResumeV2 = testCaseJson.optBoolean("is_resume_v2", true);
+            for (int r = 0; r < repeat; r++) {
+                testCaseList.add(new TestCase(UploadTask.TypeHttp2, fileCount, fileSize, concurrentCount, isResumeV2));
+                testCaseList.add(new TestCase(UploadTask.TypeHttp3, fileCount, fileSize, concurrentCount, isResumeV2));
+            }
+        }
+
+        testCases = testCaseList.toArray(new TestCase[0]);
+    }
+
     public final int requestType;
-    public final long fileCount;
+    public final int fileCount;
     public final long fileSize;
     public final int concurrentCount;
     public final boolean isResumeV2;
 
-    public TestCase(int requestType, long fileCount, long fileSize, int concurrentCount, boolean isResumeV2) {
+    public TestCase(int requestType, int fileCount, long fileSize, int concurrentCount, boolean isResumeV2) {
         this.requestType = requestType;
         this.fileCount = fileCount;
         this.fileSize = fileSize;
@@ -98,5 +172,9 @@ public class TestCase {
 
     public String getCaseName(String jobName) {
         return "data_" + jobName + "_" + Tools.getMemoryDesc(fileSize);
+    }
+
+    public interface Complete {
+        void complete(String error);
     }
 }

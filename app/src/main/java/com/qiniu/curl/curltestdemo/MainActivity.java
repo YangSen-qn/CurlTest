@@ -33,11 +33,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements Logger, UpCancellationSignal {
-    public static final int StatusWaiting = 10;
-    public static final int StatusUploading = 11;
-    public static final int StatusCancelling = 12;
-    public static final int StatusUploadLog = 13;
-    public static final int StatusUploadingLog = 14;
+    public static final int StatusWaiting = 0;
+    public static final int StatusGetTestCase = 10;
+    public static final int StatusUpload = 20;
+    public static final int StatusUploading = 21;
+    public static final int StatusCancelling = 30;
+    public static final int StatusUploadLog = 40;
+    public static final int StatusUploadingLog = 50;
 
     private static final String defaultAlert = DefaultAlert();
 
@@ -152,15 +154,15 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             return;
         }
 
-        if (job == null || !job.getJobName().equals(jobName)) {
-            taskInfoTV.setText(defaultAlert);
-            job = new UploadJob(jobName, this, this);
-        }
-
         if (status == StatusWaiting) {
-            status = StatusUploading;
             startRefreshTimer();
-            job.run();
+            if (TestCase.testCases == null) {
+                status = StatusGetTestCase;
+                getTestCase();
+            } else {
+                status = StatusUpload;
+            }
+            updateStatus();
         } else if (status == StatusUploading) {
             status = StatusCancelling;
             updateStatus();
@@ -178,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         int taskCount = 0;
         int executedTaskCount = 0;
         int currentTaskProgress = 0;
+
         if (job != null) {
             taskCount = job.taskCount();
             executedTaskCount = job.executedTaskCount();
@@ -185,6 +188,23 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             if (currentTask != null) {
                 currentTaskProgress = (int) (currentTask.progress() * 100);
             }
+
+            if (job.isCompleted()) {
+                if (job.taskCount() == job.executedTaskCount()) {
+                    if (status == StatusUploading) {
+                        status = StatusUploadingLog;
+                        uploadLog();
+                    }
+                } else {
+                    status = StatusWaiting;
+                    stopRefreshTimer();
+                }
+            }
+        }
+
+        if (TestCase.testCases != null && status == StatusUpload) {
+            status = StatusUploading;
+            runTestCase();
         }
 
         taskCountTV.setText("" + taskCount);
@@ -197,28 +217,18 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
             }
         }
 
-        if (job == null) {
-            return;
-        }
-
-        if (job.isCompleted()) {
-            if (job.taskCount() == job.executedTaskCount()) {
-                if (status == StatusUploading) {
-                    status = StatusUploadingLog;
-                    uploadLog();
-                }
-            } else {
-                status = StatusWaiting;
-                stopRefreshTimer();
-            }
-        }
-
         if (status == StatusWaiting) {
             jobIdET.setEnabled(true);
             uploadBtn.setText("开始任务");
+        } else if (status == StatusGetTestCase) {
+            jobIdET.setEnabled(false);
+            uploadBtn.setText("获取测试用例...");
+        } else if (status == StatusUpload) {
+            jobIdET.setEnabled(false);
+            uploadBtn.setText("开始上传");
         } else if (status == StatusUploading) {
             jobIdET.setEnabled(false);
-            uploadBtn.setText("暂停任务");
+            uploadBtn.setText("暂停上传");
         } else if (status == StatusCancelling) {
             uploadBtn.setText("任务暂停中...");
         } else if (status == StatusUploadLog) {
@@ -226,6 +236,35 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
         } else if (status == StatusUploadingLog) {
             uploadBtn.setText("日志上传中...");
         }
+    }
+
+    private void getTestCase() {
+        TestCase.downloadTestCase(new TestCase.Complete() {
+            @Override
+            public void complete(String error) {
+                AsyncRun.runInMain(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (error != null) {
+                            alert("error:" + error);
+                            status = StatusWaiting;
+                            stopRefreshTimer();
+                        } else {
+                            status = StatusUpload;
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void runTestCase() {
+        String jobName = jobIdET.getText().toString();
+        if (job == null || !job.getJobName().equals(jobName)) {
+            taskInfoTV.setText(defaultAlert);
+            job = new UploadJob(jobName, this, this);
+        }
+        job.run();
     }
 
     private void uploadLog() {
