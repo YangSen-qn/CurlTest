@@ -139,18 +139,27 @@ public class UploadTask implements Runnable {
     }
 
     //----------- json ------------
+    private static final String JsonKeyType = "t";
+    private static final String JsonKeyNetwork = "n";
+    private static final String JsonKeyIsResumeV2 = "ir";
+    private static final String JsonKeyFileSize = "f";
+    private static final String JsonKeyKey = "k";
+    private static final String JsonKeyDuration = "d";
+    private static final String JsonKeyIsSuccess = "is";
+    private static final String JsonKeyError = "e";
+    private static final String JsonKeyStatus = "s";
     public JSONObject toJsonData() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.putOpt("type", type);
-            jsonObject.putOpt("network", network);
-            jsonObject.putOpt("is_resume_v2", isResumeV2);
-            jsonObject.putOpt("file_size", fileSize);
-            jsonObject.putOpt("key", key);
-            jsonObject.putOpt("duration", duration);
-            jsonObject.putOpt("is_success", isSuccess);
-            jsonObject.putOpt("error", error);
-            jsonObject.putOpt("status", status);
+            jsonObject.putOpt(JsonKeyType, type);
+            jsonObject.putOpt(JsonKeyNetwork, network);
+            jsonObject.putOpt(JsonKeyIsResumeV2, isResumeV2);
+            jsonObject.putOpt(JsonKeyFileSize, fileSize);
+            jsonObject.putOpt(JsonKeyKey, key);
+            jsonObject.putOpt(JsonKeyDuration, duration);
+            jsonObject.putOpt(JsonKeyIsSuccess, isSuccess);
+            jsonObject.putOpt(JsonKeyError, error);
+            jsonObject.putOpt(JsonKeyStatus, status);
         } catch (JSONException e) {
             jsonObject = null;
         }
@@ -166,16 +175,17 @@ public class UploadTask implements Runnable {
         task.logger = logger;
         task.cancellationSignal = cancellationSignal;
         try {
-            task.type = jsonObject.getInt("type");
-            task.network = jsonObject.getString("network");
-            task.isResumeV2 = jsonObject.getBoolean("is_resume_v2");
-            task.fileSize = jsonObject.getLong("file_size");
-            task.key = jsonObject.getString("key");
-            task.duration = jsonObject.getLong("duration");
-            task.isSuccess = jsonObject.getBoolean("is_success");
-            task.error = jsonObject.optString("error");
-            task.status = jsonObject.getInt("status");
-        } catch (Exception ignored) {
+            task.type = jsonObject.getInt(JsonKeyType);
+            task.network = jsonObject.optString(JsonKeyNetwork, "");
+            task.isResumeV2 = jsonObject.getBoolean(JsonKeyIsResumeV2);
+            task.fileSize = jsonObject.getLong(JsonKeyFileSize);
+            task.key = jsonObject.getString(JsonKeyKey);
+            task.duration = jsonObject.getLong(JsonKeyDuration);
+            task.isSuccess = jsonObject.getBoolean(JsonKeyIsSuccess);
+            task.error = jsonObject.optString(JsonKeyError);
+            task.status = jsonObject.getInt(JsonKeyStatus);
+        } catch (Exception e) {
+            logger.log(false, e.getMessage());
             return null;
         }
         return task;

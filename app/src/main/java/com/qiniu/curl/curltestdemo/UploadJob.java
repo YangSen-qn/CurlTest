@@ -313,6 +313,7 @@ public class UploadJob {
                 job.taskGroups.add(taskGroup);
             }
         } catch (JSONException e) {
+            logger.log(false, e.getMessage());
             return null;
         }
         return job;
