@@ -3,15 +3,8 @@ package com.qiniu.curl.curltestdemo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -21,6 +14,7 @@ import okhttp3.Response;
 public class TestCase {
     public static final long KB = 1;
     public static final long M = 1024;
+    public static String testCasesVersion = null;
     public static TestCase[] testCases = null;
 
     private static TestCase[] getTestCases() {
@@ -133,6 +127,7 @@ public class TestCase {
     }
 
     private static void parseTestCaseFromJson(JSONObject jsonObject) throws Exception {
+        testCasesVersion = jsonObject.optString("version");
         JSONArray testCaseJsonArray = jsonObject.getJSONArray("test_case");
         int size = testCaseJsonArray.length();
         List<TestCase> testCaseList = new ArrayList<>();

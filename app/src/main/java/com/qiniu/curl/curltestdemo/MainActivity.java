@@ -252,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
                             stopRefreshTimer();
                         } else {
                             status = StatusUpload;
+                            log(false, "成功从服务加载 case，version:" + TestCase.testCasesVersion);
                         }
                     }
                 });
