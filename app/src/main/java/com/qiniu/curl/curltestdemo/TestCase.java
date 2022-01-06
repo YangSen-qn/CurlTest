@@ -138,7 +138,7 @@ public class TestCase {
             }
 
             int repeat = testCaseJson.getInt("repeat");
-            int fileCount = testCaseJson.getInt("file_size");
+            int fileCount = testCaseJson.getInt("file_count");
             long fileSize = testCaseJson.getLong("file_size");
             int concurrentCount = testCaseJson.getInt("concurrent_count");
             boolean isResumeV2 = testCaseJson.optBoolean("is_resume_v2", true);
