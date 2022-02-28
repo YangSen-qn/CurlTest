@@ -1,5 +1,6 @@
 package com.qiniu.curl.curltestdemo;
 
+import com.qiniu.android.collect.ReportConfig;
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.http.dns.Dns;
@@ -49,6 +50,8 @@ public class Uploader implements Dns {
         LogUtil.enableLog(true);
         GlobalConfiguration.getInstance().dns = this;
         GlobalConfiguration.getInstance().enableHttp3 = true;
+        ReportConfig.getInstance().uploadThreshold = 1024 * 1024 * 8;
+        ReportConfig.getInstance().maxRecordFileSize = 1024 * 1024 * 100;
     }
 
     public void uploadFile(String file, String key, Complete complete) {

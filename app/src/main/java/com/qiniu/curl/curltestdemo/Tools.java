@@ -13,6 +13,8 @@ import android.view.WindowManager;
 
 import androidx.core.app.ActivityCompat;
 
+import com.qiniu.android.storage.Configuration;
+import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.utils.Utils;
 
 import org.json.JSONObject;
@@ -30,7 +32,7 @@ public class Tools {
     public static Context context;
 
     public static String getToken() {
-        return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:Lg3QQz1QnODk-PxSfnE8xpR27lM=:eyJzY29wZSI6Imh0dHAzLXRlc3QiLCJkZWFkbGluZSI6MTY1MDUyMjg5NH0=";
+        return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:qRvAa27alTIuCNH1SvVhnl-phAI=:eyJzY29wZSI6ImtvZG8tcGhvbmUtem9uZTAtc3BhY2UiLCJkZWFkbGluZSI6MTY0OTc1NDU2NywgInJldHVybkJvZHkiOiJ7XCJjYWxsYmFja1VybFwiOlwiaHR0cDpcL1wvY2FsbGJhY2suZGV2LnFpbml1LmlvXCIsIFwiZm9vXCI6JCh4OmZvbyksIFwiYmFyXCI6JCh4OmJhciksIFwibWltZVR5cGVcIjokKG1pbWVUeXBlKSwgXCJoYXNoXCI6JChldGFnKSwgXCJrZXlcIjokKGtleSksIFwiZm5hbWVcIjokKGZuYW1lKX0ifQ==";
     }
 
     // 单位：kb
