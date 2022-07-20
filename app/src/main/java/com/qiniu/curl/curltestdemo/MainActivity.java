@@ -26,6 +26,8 @@ import com.pgyersdk.feedback.PgyFeedbackShakeManager;
 import com.pgyersdk.javabean.AppBean;
 import com.pgyersdk.update.PgyUpdateManager;
 import com.pgyersdk.update.UpdateManagerListener;
+import com.qiniu.android.collect.ReportConfig;
+import com.qiniu.android.collect.UploadInfoReporter;
 import com.qiniu.android.storage.UpCancellationSignal;
 import com.qiniu.android.utils.AsyncRun;
 
@@ -240,6 +242,13 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     }
 
     private void getTestCase() {
+        String jobName = jobIdET.getText().toString();
+        if (jobName.startsWith("Local")) {
+            TestCase.loadLocalCase();
+            status = StatusUpload;
+            return;
+        }
+
         TestCase.downloadTestCase(new TestCase.Complete() {
             @Override
             public void complete(String error) {
@@ -261,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     }
 
     private void runTestCase() {
+        ReportConfig.getInstance().uploadThreshold = 1024 * 1024 * 200;
         String jobName = jobIdET.getText().toString();
         if (job == null || !job.getJobName().equals(jobName)) {
             taskInfoTV.setText(defaultAlert);

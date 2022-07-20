@@ -1,10 +1,12 @@
 package com.qiniu.curl.curltestdemo;
 
 import com.qiniu.android.collect.ReportConfig;
+import com.qiniu.android.common.Config;
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.http.dns.Dns;
 import com.qiniu.android.http.dns.IDnsNetworkAddress;
+import com.qiniu.android.http.serverRegion.HttpServerManager;
 import com.qiniu.android.storage.Configuration;
 import com.qiniu.android.storage.GlobalConfiguration;
 import com.qiniu.android.storage.UpCancellationSignal;
@@ -25,19 +27,27 @@ import java.util.List;
 public class Uploader implements Dns {
 
     private static final String UploadHost = "upload.qiniup.com";
-//    private static final String[] UploadIpList = new String[]{
+    //    private static final String[] UploadIpList = new String[]{
 //            "111.1.36.180"};
+    private static final String UploadHostIp00 = "218.98.28.87";
+    private static final String UploadHostIp01 = "218.98.28.28";
     private static final String[] UploadIpList = new String[]{
-            "111.1.36.180", "218.98.28.87", "218.98.28.28",
-            "112.13.172.42", "112.13.172.39", "223.111.225.57",
-            "117.148.177.151", "223.111.225.66", "223.111.225.67",
-            "124.160.115.130"};
+            UploadHostIp00, UploadHostIp01};
     private static final List<IDnsNetworkAddress> UploadAddress = getUploadAddress();
-    private static List<IDnsNetworkAddress> getUploadAddress(){
+    private static final List<IDnsNetworkAddress> UpLogAddress = getUpLogAddress();
+
+    private static List<IDnsNetworkAddress> getUploadAddress() {
         List<IDnsNetworkAddress> addresses = new ArrayList<>();
         for (String ip : UploadIpList) {
             addresses.add(new DnsAddress(UploadHost, ip));
         }
+        return addresses;
+    }
+
+    private static List<IDnsNetworkAddress> getUpLogAddress() {
+        List<IDnsNetworkAddress> addresses = new ArrayList<>();
+        addresses.add(new DnsAddress(Config.upLogURL, "115.231.97.60"));
+        addresses.add(new DnsAddress(Config.upLogURL, "180.101.136.19"));
         return addresses;
     }
 
@@ -46,12 +56,14 @@ public class Uploader implements Dns {
     public static Uploader getInstance() {
         return Instance;
     }
+
     private Uploader() {
         LogUtil.enableLog(true);
         GlobalConfiguration.getInstance().dns = this;
         GlobalConfiguration.getInstance().enableHttp3 = true;
-        ReportConfig.getInstance().uploadThreshold = 1024 * 1024 * 8;
-        ReportConfig.getInstance().maxRecordFileSize = 1024 * 1024 * 100;
+        ReportConfig.getInstance().maxRecordFileSize = 1024 * 1024 * 500;
+        HttpServerManager.getInstance().addHttp3Server(UploadHost, UploadHostIp00, 3600 * 100);
+        HttpServerManager.getInstance().addHttp3Server(UploadHost, UploadHostIp01, 3600 * 100);
     }
 
     public void uploadFile(String file, String key, Complete complete) {
@@ -65,6 +77,9 @@ public class Uploader implements Dns {
                 .chunkSize(1024 * 1024)
                 .useConcurrentResumeUpload(true)
                 .concurrentTaskCount(3)
+                .connectTimeout(20)
+                .responseTimeout(40)
+                .retryMax(0)
                 .zone(new FixedZone(new String[]{UploadHost}));
 
         if (useHttp3) {
@@ -109,7 +124,6 @@ public class Uploader implements Dns {
     }
 
 
-
     public interface Complete {
         void complete(boolean isSuccess, String error);
     }
@@ -117,10 +131,12 @@ public class Uploader implements Dns {
 
     @Override
     public List<IDnsNetworkAddress> lookup(String hostname) throws UnknownHostException {
-        if (!hostname.equals(UploadHost)) {
-            return null;
+        if (hostname.equals(UploadHost)) {
+            return UploadAddress;
+        } else if (!hostname.equals(Config.upLogURL)) {
+            return UpLogAddress;
         }
-        return UploadAddress;
+        return null;
     }
 
     private static class DnsAddress implements IDnsNetworkAddress {

@@ -17,6 +17,10 @@ public class TestCase {
     public static String testCasesVersion = null;
     public static TestCase[] testCases = null;
 
+    public static synchronized void loadLocalCase() {
+        testCases = getTestCases();
+    }
+
     private static TestCase[] getTestCases() {
         List<TestCase> caseList = new ArrayList<>();
         int repeat = 50;
@@ -24,6 +28,7 @@ public class TestCase {
         int smallCaseConcurrentCount = 10;
         int midCaseFileCount = 10;
         int midCaseConcurrentCount = 10;
+        int bigCaseRepeat = 5;
         int bigCaseFileCount = 6;
         int bigCaseConcurrentCount = 6;
 
@@ -63,26 +68,38 @@ public class TestCase {
             caseList.add(new TestCase(UploadTask.TypeHttp3, smallCaseFileCount, 256 * KB, smallCaseConcurrentCount, false));
         }
 
-        // 5M
+        // 1M
         for (int i = 0; i < repeat; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, smallCaseFileCount, M, smallCaseConcurrentCount, false));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, smallCaseFileCount, M, smallCaseConcurrentCount, false));
+        }
+
+        // 3M
+        for (int i = 0; i < bigCaseRepeat; i++) {
+            caseList.add(new TestCase(UploadTask.TypeHttp2, midCaseFileCount, 3 * M, midCaseConcurrentCount, true));
+            caseList.add(new TestCase(UploadTask.TypeHttp3, midCaseFileCount, 3 * M, midCaseConcurrentCount, true));
+        }
+
+        // 5M
+        for (int i = 0; i < bigCaseRepeat; i++) {
             caseList.add(new TestCase(UploadTask.TypeHttp2, midCaseFileCount, 5 * M, midCaseConcurrentCount, true));
             caseList.add(new TestCase(UploadTask.TypeHttp3, midCaseFileCount, 5 * M, midCaseConcurrentCount, true));
         }
 
         // 10M
-        for (int i = 0; i < repeat; i++) {
+        for (int i = 0; i < bigCaseRepeat; i++) {
             caseList.add(new TestCase(UploadTask.TypeHttp2, midCaseFileCount, 10 * M, midCaseConcurrentCount, true));
             caseList.add(new TestCase(UploadTask.TypeHttp3, midCaseFileCount, 10 * M, midCaseConcurrentCount, true));
         }
 
         // 50M
-        for (int i = 0; i < repeat; i++) {
+        for (int i = 0; i < bigCaseRepeat; i++) {
             caseList.add(new TestCase(UploadTask.TypeHttp2, bigCaseFileCount, 50 * M, bigCaseConcurrentCount, true));
             caseList.add(new TestCase(UploadTask.TypeHttp3, bigCaseFileCount, 50 * M, bigCaseConcurrentCount, true));
         }
 
         // 100M
-        for (int i = 0; i < repeat; i++) {
+        for (int i = 0; i < bigCaseRepeat; i++) {
             caseList.add(new TestCase(UploadTask.TypeHttp2, bigCaseFileCount, 100 * M, bigCaseConcurrentCount, true));
             caseList.add(new TestCase(UploadTask.TypeHttp3, bigCaseFileCount, 100 * M, bigCaseConcurrentCount, true));
         }
@@ -142,9 +159,16 @@ public class TestCase {
             long fileSize = testCaseJson.getLong("file_size");
             int concurrentCount = testCaseJson.getInt("concurrent_count");
             boolean isResumeV2 = testCaseJson.optBoolean("is_resume_v2", true);
+            boolean disableHttp2 = testCaseJson.optBoolean("disable_http2", false);
+            boolean disableHttp3 = testCaseJson.optBoolean("disable_http2", false);
+
             for (int r = 0; r < repeat; r++) {
-                testCaseList.add(new TestCase(UploadTask.TypeHttp2, fileCount, fileSize, concurrentCount, isResumeV2));
-                testCaseList.add(new TestCase(UploadTask.TypeHttp3, fileCount, fileSize, concurrentCount, isResumeV2));
+                if (!disableHttp2) {
+                    testCaseList.add(new TestCase(UploadTask.TypeHttp2, fileCount, fileSize, concurrentCount, isResumeV2));
+                }
+                if (!disableHttp3) {
+                    testCaseList.add(new TestCase(UploadTask.TypeHttp3, fileCount, fileSize, concurrentCount, isResumeV2));
+                }
             }
         }
 

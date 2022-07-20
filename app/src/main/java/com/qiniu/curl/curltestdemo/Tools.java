@@ -32,7 +32,7 @@ public class Tools {
     public static Context context;
 
     public static String getToken() {
-        return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:qRvAa27alTIuCNH1SvVhnl-phAI=:eyJzY29wZSI6ImtvZG8tcGhvbmUtem9uZTAtc3BhY2UiLCJkZWFkbGluZSI6MTY0OTc1NDU2NywgInJldHVybkJvZHkiOiJ7XCJjYWxsYmFja1VybFwiOlwiaHR0cDpcL1wvY2FsbGJhY2suZGV2LnFpbml1LmlvXCIsIFwiZm9vXCI6JCh4OmZvbyksIFwiYmFyXCI6JCh4OmJhciksIFwibWltZVR5cGVcIjokKG1pbWVUeXBlKSwgXCJoYXNoXCI6JChldGFnKSwgXCJrZXlcIjokKGtleSksIFwiZm5hbWVcIjokKGZuYW1lKX0ifQ==";
+        return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:F-a35Kiyll0rwhegNxj3COuET1s=:eyJzY29wZSI6Imh0dHAzLXRlc3QiLCJkZWFkbGluZSI6MzMxOTM2MzIzOH0=";
     }
 
     // 单位：kb
