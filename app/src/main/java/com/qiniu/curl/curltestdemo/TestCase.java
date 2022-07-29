@@ -23,9 +23,10 @@ public class TestCase {
 
     private static TestCase[] getTestCases() {
         List<TestCase> caseList = new ArrayList<>();
-        int repeat = 20;
-        int smallCaseFileCount = 5;
-        int smallCaseConcurrentCount = 5;
+
+        int repeat = 10;
+        int smallCaseFileCount = 10;
+        int smallCaseConcurrentCount = 10;
         int midCaseFileCount = 10;
         int midCaseConcurrentCount = 10;
         int bigCaseRepeat = 5;
