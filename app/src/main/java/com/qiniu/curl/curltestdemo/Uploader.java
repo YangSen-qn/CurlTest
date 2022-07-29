@@ -61,7 +61,7 @@ public class Uploader implements Dns {
         LogUtil.enableLog(true);
         GlobalConfiguration.getInstance().dns = this;
         GlobalConfiguration.getInstance().enableHttp3 = true;
-        ReportConfig.getInstance().maxRecordFileSize = 1024 * 1024 * 500;
+//        ReportConfig.getInstance().maxRecordFileSize = 1024 * 1024 * 500;
         HttpServerManager.getInstance().addHttp3Server(UploadHost, UploadHostIp00, 3600 * 100);
         HttpServerManager.getInstance().addHttp3Server(UploadHost, UploadHostIp01, 3600 * 100);
     }
@@ -74,7 +74,7 @@ public class Uploader implements Dns {
         Configuration.Builder builder = new Configuration.Builder()
                 .putThreshold(1024 * 1024 * 4)
                 .resumeUploadVersion(Configuration.RESUME_UPLOAD_VERSION_V2)
-                .chunkSize(1024 * 1024)
+                .chunkSize(4 * 1024 * 1024)
                 .useConcurrentResumeUpload(true)
                 .concurrentTaskCount(3)
                 .connectTimeout(20)
@@ -89,7 +89,7 @@ public class Uploader implements Dns {
         Configuration cfg = builder.build();
         UploadOptions options = new UploadOptions(null, null, false, null, cancellationSignal);
         UploadManager manager = new UploadManager(cfg);
-        manager.put(file, key, Tools.getToken(), new UpCompletionHandler() {
+        manager.put(file, key, Tools.getUpToken(), new UpCompletionHandler() {
             @Override
             public void complete(String key, ResponseInfo info, JSONObject response) {
                 if (info != null && (info.isOK() || info.statusCode == 614)) {

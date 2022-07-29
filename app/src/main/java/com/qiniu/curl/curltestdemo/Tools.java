@@ -35,6 +35,10 @@ public class Tools {
         return "dxVQk8gyk3WswArbNhdKIwmwibJ9nFsQhMNUmtIM:F-a35Kiyll0rwhegNxj3COuET1s=:eyJzY29wZSI6Imh0dHAzLXRlc3QiLCJkZWFkbGluZSI6MzMxOTM2MzIzOH0=";
     }
 
+    public static String getUpToken() {
+        return "5cJEzNSnh3PjOHZR_E0u1HCkXw4Bw1ZSuWQI9ufz:yYbfPNo62CiCmP0z_oHdJdMmNHo=:eyJzY29wZSI6InpvbmUwLXNwYWNlIiwiZGVhZGxpbmUiOjE2NTg5MTA2MDd9";
+    }
+
     // 单位：kb
     public synchronized static String getFileOfSize(long kiloSize) {
         String fileName = "qiniu-demo-file-" + kiloSize + "KB.tmp";

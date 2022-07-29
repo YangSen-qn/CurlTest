@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements Logger, UpCancell
     }
 
     private void runTestCase() {
-        ReportConfig.getInstance().uploadThreshold = 1024 * 1024 * 200;
+//        ReportConfig.getInstance().uploadThreshold = 1024 * 1024 * 200;
         String jobName = jobIdET.getText().toString();
         if (job == null || !job.getJobName().equals(jobName)) {
             taskInfoTV.setText(defaultAlert);

@@ -30,22 +30,25 @@ public class LogReporter {
     }
 
     private static void reportUploadJobInfo(UploadJob job, Complete complete) {
-        ReportItem item = new ReportItem();
-        item.setReport(ReportItem.RequestKeyLogType, ReportItem.LogTypeRequest);
-        item.setReport(ReportItem.RequestKeyErrorType, "http3_test");
-        ReportConfig.getInstance().uploadThreshold = 1024 * 8;
-        UploadInfoReporter.getInstance().report(item, Tools.getToken());
+        complete.complete(true);
+        return;
 
-        String key = "job_info_" + job.getJobName() + "_" + Tools.getFormatDate(job.getCreateTimestamp());
-        Uploader.getInstance().uploadData(job.reportInfo(), key, new Uploader.Complete() {
-            @Override
-            public void complete(boolean isSuccess, String error) {
-                if (isSuccess) {
-                    job.setInfoUploaded(true);
-                }
-                complete.complete(isSuccess);
-            }
-        });
+//        ReportItem item = new ReportItem();
+//        item.setReport(ReportItem.RequestKeyLogType, ReportItem.LogTypeRequest);
+//        item.setReport(ReportItem.RequestKeyErrorType, "http3_test");
+////        ReportConfig.getInstance().uploadThreshold = 1024 * 8;
+//        UploadInfoReporter.getInstance().report(item, Tools.getToken());
+//
+//        String key = "job_info_" + job.getJobName() + "_" + Tools.getFormatDate(job.getCreateTimestamp());
+//        Uploader.getInstance().uploadData(job.reportInfo(), key, new Uploader.Complete() {
+//            @Override
+//            public void complete(boolean isSuccess, String error) {
+//                if (isSuccess) {
+//                    job.setInfoUploaded(true);
+//                }
+//                complete.complete(isSuccess);
+//            }
+//        });
     }
 
     private static void reportUploadJobDebug(UploadJob job, Complete complete) {
